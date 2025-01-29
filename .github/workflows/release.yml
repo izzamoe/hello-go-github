@@ -32,20 +32,20 @@ jobs:
           tar -czvf hello-github.tar.gz hello-github
           sha256sum hello-github.tar.gz >> checksum.txt
 
-      - name: Upload Assets
-        uses: actions/upload-release-asset@v1 # Gunakan versi terbaru
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Auto-generated, lebih aman
-        with:
-          upload_url: ${{ github.event.release.upload_url }} # Langsung dari event release
-          asset_path: ./hello-github.tar.gz
-          asset_name: hello-github-${{ github.event.release.tag_name }}.tar.gz
-
-      - name: Upload Checksum
-        uses: actions/upload-release-asset@v1
+      - name: Upload Release Asset
+        uses: xresloader/upload-to-github-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./checksum.txt
-          asset_name: checksum-${{ github.event.release.tag_name }}.txt
+          file: hello-github.tar.gz
+          tags: true
+          draft: false
+
+      - name: Upload Checksum
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: checksum.txt
+          tags: true
+          draft: false
