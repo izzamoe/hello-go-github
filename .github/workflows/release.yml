@@ -5,16 +5,16 @@ on:
     types: [created]
 
 jobs:
-  build:
+  build-linux-amd64:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Minimal permission untuk upload asset
+      contents: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Untuk mendapatkan tag lengkap
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -26,30 +26,10 @@ jobs:
           GOOS=linux GOARCH=amd64 go build -o hello-github-linux-amd64
           sha256sum hello-github-linux-amd64 > checksum-linux-amd64.txt
 
-      - name: Build for Linux ARM64
-        run: |
-          GOOS=linux GOARCH=arm64 go build -o hello-github-linux-arm64
-          sha256sum hello-github-linux-arm64 > checksum-linux-arm64.txt
-
-      - name: Build for Windows AMD64
-        run: |
-          GOOS=windows GOARCH=amd64 go build -o hello-github-windows-amd64.exe
-          sha256sum hello-github-windows-amd64.exe > checksum-windows-amd64.txt
-
       - name: Create Release Asset for Linux AMD64
         run: |
           tar -czvf hello-github-linux-amd64.tar.gz hello-github-linux-amd64
           sha256sum hello-github-linux-amd64.tar.gz >> checksum-linux-amd64.txt
-
-      - name: Create Release Asset for Linux ARM64
-        run: |
-          tar -czvf hello-github-linux-arm64.tar.gz hello-github-linux-arm64
-          sha256sum hello-github-linux-arm64.tar.gz >> checksum-linux-arm64.txt
-
-      - name: Create Release Asset for Windows AMD64
-        run: |
-          zip hello-github-windows-amd64.zip hello-github-windows-amd64.exe
-          sha256sum hello-github-windows-amd64.zip >> checksum-windows-amd64.txt
 
       - name: Upload Release Asset for Linux AMD64
         uses: xresloader/upload-to-github-release@v1
@@ -57,24 +37,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           file: hello-github-linux-amd64.tar.gz
-          tags: true
-          draft: false
-
-      - name: Upload Release Asset for Linux ARM64
-        uses: xresloader/upload-to-github-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          file: hello-github-linux-arm64.tar.gz
-          tags: true
-          draft: false
-
-      - name: Upload Release Asset for Windows AMD64
-        uses: xresloader/upload-to-github-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          file: hello-github-windows-amd64.zip
           tags: true
           draft: false
 
@@ -87,12 +49,82 @@ jobs:
           tags: true
           draft: false
 
+  build-linux-arm64:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.5"
+
+      - name: Build for Linux ARM64
+        run: |
+          GOOS=linux GOARCH=arm64 go build -o hello-github-linux-arm64
+          sha256sum hello-github-linux-arm64 > checksum-linux-arm64.txt
+
+      - name: Create Release Asset for Linux ARM64
+        run: |
+          tar -czvf hello-github-linux-arm64.tar.gz hello-github-linux-arm64
+          sha256sum hello-github-linux-arm64.tar.gz >> checksum-linux-arm64.txt
+
+      - name: Upload Release Asset for Linux ARM64
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: hello-github-linux-arm64.tar.gz
+          tags: true
+          draft: false
+
       - name: Upload Checksum for Linux ARM64
         uses: xresloader/upload-to-github-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           file: checksum-linux-arm64.txt
+          tags: true
+          draft: false
+
+  build-windows-amd64:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.5"
+
+      - name: Build for Windows AMD64
+        run: |
+          GOOS=windows GOARCH=amd64 go build -o hello-github-windows-amd64.exe
+          sha256sum hello-github-windows-amd64.exe > checksum-windows-amd64.txt
+
+      - name: Create Release Asset for Windows AMD64
+        run: |
+          zip hello-github-windows-amd64.zip hello-github-windows-amd64.exe
+          sha256sum hello-github-windows-amd64.zip >> checksum-windows-amd64.txt
+
+      - name: Upload Release Asset for Windows AMD64
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: hello-github-windows-amd64.zip
           tags: true
           draft: false
 

@@ -45,6 +45,6 @@ func main() {
 	})
 
 	// Menjalankan server di port 8080
-	log.Println("Server berjalan di http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("Server berjalan di http://localhost:9090")
+	log.Fatal(http.ListenAndServe(":9090", nil))
 }
