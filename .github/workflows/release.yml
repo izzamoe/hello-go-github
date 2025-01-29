@@ -33,7 +33,7 @@ jobs:
           sha256sum hello-github.tar.gz >> checksum.txt
 
       - name: Upload Assets
-        uses: actions/upload-release-asset@v2 # Gunakan versi terbaru
+        uses: actions/upload-release-asset@v1 # Gunakan versi terbaru
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Auto-generated, lebih aman
         with:
@@ -42,7 +42,7 @@ jobs:
           asset_name: hello-github-${{ github.event.release.tag_name }}.tar.gz
 
       - name: Upload Checksum
-        uses: actions/upload-release-asset@v2
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
