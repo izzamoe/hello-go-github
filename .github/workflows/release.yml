@@ -1,42 +1,51 @@
-name: Build and Release
+name: Secure Build and Release
 
 on:
-  push:
-    tags:
-      - "v*.*.*" # Trigger workflow on version tags, e.g., v1.0.0
+  release:
+    types: [created]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Minimal permission untuk upload asset
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Untuk mendapatkan tag lengkap
 
-      - name: Set up Go
+      - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.23.5" # Set the Go version you are using
-
-      # check version
-      - name: Check Go version
-        run: go version
-
-      - name: Install dependencies
-        run: go mod download
+          go-version: "1.23.5"
 
       - name: Build
-        run: go build -o hello-github
+        run: |
+          go mod download
+          go build -o hello-github
+          sha256sum hello-github > checksum.txt
 
-      - name: Archive build
-        run: tar -czvf hello-github.tar.gz hello-github
+      - name: Create Release Asset
+        run: |
+          tar -czvf hello-github.tar.gz hello-github
+          sha256sum hello-github.tar.gz >> checksum.txt
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+      - name: Upload Assets
+        uses: actions/upload-release-asset@v2 # Gunakan versi terbaru
         env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Auto-generated, lebih aman
         with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          upload_url: ${{ github.event.release.upload_url }} # Langsung dari event release
           asset_path: ./hello-github.tar.gz
-          asset_name: hello-github.tar.gz
-          asset_content_type: application/gzip
+          asset_name: hello-github-${{ github.event.release.tag_name }}.tar.gz
+
+      - name: Upload Checksum
+        uses: actions/upload-release-asset@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./checksum.txt
+          asset_name: checksum-${{ github.event.release.tag_name }}.txt
