@@ -21,31 +21,86 @@ jobs:
         with:
           go-version: "1.23.5"
 
-      - name: Build
+      - name: Build for Linux AMD64
         run: |
-          go mod download
-          go build -o hello-github
-          sha256sum hello-github > checksum.txt
+          GOOS=linux GOARCH=amd64 go build -o hello-github-linux-amd64
+          sha256sum hello-github-linux-amd64 > checksum-linux-amd64.txt
 
-      - name: Create Release Asset
+      - name: Build for Linux ARM64
         run: |
-          tar -czvf hello-github.tar.gz hello-github
-          sha256sum hello-github.tar.gz >> checksum.txt
+          GOOS=linux GOARCH=arm64 go build -o hello-github-linux-arm64
+          sha256sum hello-github-linux-arm64 > checksum-linux-arm64.txt
 
-      - name: Upload Release Asset
+      - name: Build for Windows AMD64
+        run: |
+          GOOS=windows GOARCH=amd64 go build -o hello-github-windows-amd64.exe
+          sha256sum hello-github-windows-amd64.exe > checksum-windows-amd64.txt
+
+      - name: Create Release Asset for Linux AMD64
+        run: |
+          tar -czvf hello-github-linux-amd64.tar.gz hello-github-linux-amd64
+          sha256sum hello-github-linux-amd64.tar.gz >> checksum-linux-amd64.txt
+
+      - name: Create Release Asset for Linux ARM64
+        run: |
+          tar -czvf hello-github-linux-arm64.tar.gz hello-github-linux-arm64
+          sha256sum hello-github-linux-arm64.tar.gz >> checksum-linux-arm64.txt
+
+      - name: Create Release Asset for Windows AMD64
+        run: |
+          zip hello-github-windows-amd64.zip hello-github-windows-amd64.exe
+          sha256sum hello-github-windows-amd64.zip >> checksum-windows-amd64.txt
+
+      - name: Upload Release Asset for Linux AMD64
         uses: xresloader/upload-to-github-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          file: hello-github.tar.gz
+          file: hello-github-linux-amd64.tar.gz
           tags: true
           draft: false
 
-      - name: Upload Checksum
+      - name: Upload Release Asset for Linux ARM64
         uses: xresloader/upload-to-github-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          file: checksum.txt
+          file: hello-github-linux-arm64.tar.gz
+          tags: true
+          draft: false
+
+      - name: Upload Release Asset for Windows AMD64
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: hello-github-windows-amd64.zip
+          tags: true
+          draft: false
+
+      - name: Upload Checksum for Linux AMD64
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: checksum-linux-amd64.txt
+          tags: true
+          draft: false
+
+      - name: Upload Checksum for Linux ARM64
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: checksum-linux-arm64.txt
+          tags: true
+          draft: false
+
+      - name: Upload Checksum for Windows AMD64
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: checksum-windows-amd64.txt
           tags: true
           draft: false
