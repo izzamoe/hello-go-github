@@ -25,7 +25,7 @@ func main() {
 				},
 				{
 					Role:    "system",
-					Content: "response from system",
+					Content: "response from system 1",
 				},
 			},
 			Stream: true,

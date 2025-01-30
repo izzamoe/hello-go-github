@@ -93,6 +93,10 @@ jobs:
           tags: true
           draft: false
 
+      - name: Notify Update Server
+        run: |
+          curl -X POST https://update.hixy.me/update
+
   build-windows-amd64:
     runs-on: ubuntu-latest
     permissions:
